@@ -48,7 +48,11 @@ def create_workflow(
     
     Args:
         pg_connection_string: String de conexão PostgreSQL. 
-                             Se None, usa variável de ambiente POSTGRES_CONNECTION_STRING
+                             Se fornecido, será usado para ambos os bancos (vetorial e cache).
+                             Se None, usa variáveis de ambiente:
+                             - POSTGRES_VECTOR_DB_CONNECTION_STRING (banco vetorial com pgvector)
+                             - POSTGRES_CACHE_DB_CONNECTION_STRING (banco normal para cache)
+                             Fallback para POSTGRES_CONNECTION_STRING se as novas variáveis não existirem.
         bert_model_name: Nome do modelo BERT. Se None, usa padrão
         llm_model: Modelo LLM a ser usado (padrão: gemini-2.5-flash)
         google_api_key: Chave da API Google. Se None, usa variável de ambiente GOOGLE_API_KEY
@@ -64,12 +68,30 @@ def create_workflow(
     elif not os.getenv("GOOGLE_API_KEY"):
         logger.warning("GOOGLE_API_KEY não configurada. Configure no arquivo .env ou variável de ambiente.")
     
-    # Configura conexão PostgreSQL (prioridade: parâmetro > .env > variável de ambiente)
-    pg_conn = pg_connection_string or os.getenv("POSTGRES_CONNECTION_STRING")
-    if not pg_conn:
-        logger.warning("POSTGRES_CONNECTION_STRING não configurada. RAG pode não funcionar.")
-        logger.warning("Configure POSTGRES_CONNECTION_STRING no arquivo .env")
-        pg_conn = "postgresql://user:password@localhost:5432/dbname"
+    # Configura conexão PostgreSQL para banco vetorial (prioridade: parâmetro > .env > variável de ambiente)
+    # Se pg_connection_string for fornecido, usa para ambos os bancos (compatibilidade)
+    if pg_connection_string:
+        vector_db_conn = pg_connection_string
+        cache_db_conn = pg_connection_string
+    else:
+        vector_db_conn = os.getenv("POSTGRES_VECTOR_DB_CONNECTION_STRING")
+        cache_db_conn = os.getenv("POSTGRES_CACHE_DB_CONNECTION_STRING")
+        
+        # Fallback para variável antiga (compatibilidade)
+        if not vector_db_conn:
+            vector_db_conn = os.getenv("POSTGRES_CONNECTION_STRING")
+        if not cache_db_conn:
+            cache_db_conn = os.getenv("POSTGRES_CONNECTION_STRING")
+    
+    if not vector_db_conn:
+        logger.warning("POSTGRES_VECTOR_DB_CONNECTION_STRING não configurada. RAG pode não funcionar.")
+        logger.warning("Configure POSTGRES_VECTOR_DB_CONNECTION_STRING no arquivo .env")
+        vector_db_conn = "postgresql://user:password@localhost:5432/dbname"
+    
+    if not cache_db_conn:
+        logger.warning("POSTGRES_CACHE_DB_CONNECTION_STRING não configurada. Cache pode não funcionar.")
+        logger.warning("Configure POSTGRES_CACHE_DB_CONNECTION_STRING no arquivo .env")
+        cache_db_conn = "postgresql://user:password@localhost:5432/dbname"
     
     # Configura modelo de embeddings (prioridade: parâmetro > .env > padrão)
     embedding_model_name = embedding_model or os.getenv("EMBEDDING_MODEL") or "BAAI/bge-m3"
@@ -78,7 +100,7 @@ def create_workflow(
     logger.info("Inicializando componentes...")
     logger.info(f"Usando modelo de embeddings: {embedding_model_name}")
     bert_classifier = BERTClassifier(model_name=bert_model_name)
-    vector_db = VectorDB(connection_string=pg_conn, embedding_model=embedding_model_name)
+    vector_db = VectorDB(connection_string=vector_db_conn, embedding_model=embedding_model_name)
     agent = FakeNewsAgent(
         vector_db=vector_db,
         bert_classifier=bert_classifier,
@@ -89,7 +111,7 @@ def create_workflow(
     analysis_cache = None
     if enable_cache:
         try:
-            analysis_cache = AnalysisCache(connection_string=pg_conn)
+            analysis_cache = AnalysisCache(connection_string=cache_db_conn)
             logger.info("Cache de análises habilitado")
         except Exception as e:
             logger.warning(f"Erro ao inicializar cache: {e}. Continuando sem cache.")

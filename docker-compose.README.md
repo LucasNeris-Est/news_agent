@@ -28,10 +28,17 @@ Crie um arquivo `.env` baseado no `env.example`:
 
 ```env
 GOOGLE_API_KEY=sua-chave-aqui
-POSTGRES_CONNECTION_STRING=postgresql://news_agent:news_agent_password@localhost:5432/news_agent_db
+
+# Banco Vetorial (com pgvector) - usado para RAG
+POSTGRES_VECTOR_DB_CONNECTION_STRING=postgresql://news_agent:news_agent_password@localhost:5433/news_agent_db
+
+# Banco Normal (PostgreSQL padrão) - usado para cache de análises
+POSTGRES_CACHE_DB_CONNECTION_STRING=postgresql://user:password@localhost:5432/news_cache_db
 ```
 
-**Nota**: Se estiver usando Docker, use `localhost` para conexão externa. Se estiver dentro do container, use `postgres` como host.
+**Nota**: 
+- **Banco Vetorial**: Se estiver usando Docker e conectando de fora do container, use `localhost:5433` (porta mapeada no host). Se estiver dentro do container Docker, use `postgres:5432` como host (nome do serviço e porta interna).
+- **Banco Normal**: Configure a conexão para seu PostgreSQL local (geralmente na porta 5432) ou outro banco de sua escolha para o cache de análises.
 
 ### 3. Verificar se o banco está rodando
 
@@ -149,5 +156,5 @@ ports:
   - "5433:5432"  # Use outra porta
 ```
 
-E atualize o `POSTGRES_CONNECTION_STRING` no `.env` para usar a nova porta.
+E atualize o `POSTGRES_VECTOR_DB_CONNECTION_STRING` no `.env` para usar a nova porta.
 

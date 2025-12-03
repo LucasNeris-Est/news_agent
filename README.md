@@ -46,12 +46,19 @@ Conteúdo do arquivo `.env`:
 # Google API Key (obrigatório) - Obtenha em https://makersuite.google.com/app/apikey
 GOOGLE_API_KEY=sua-chave-aqui
 
-# PostgreSQL com pgvector (obrigatório)
-POSTGRES_CONNECTION_STRING=postgresql://user:password@localhost:5432/dbname
+# Banco Vetorial (com pgvector) - usado para RAG (obrigatório)
+POSTGRES_VECTOR_DB_CONNECTION_STRING=postgresql://user:password@localhost:5432/dbname
+
+# Banco Normal (PostgreSQL padrão) - usado para cache de análises (obrigatório)
+POSTGRES_CACHE_DB_CONNECTION_STRING=postgresql://user:password@localhost:5432/cache_db
 
 # Opcional: Modelo LLM a ser usado
 LLM_MODEL=gemini-2.5-flash
 ```
+
+**Nota:** Você pode usar dois bancos PostgreSQL separados:
+- **Banco Vetorial**: PostgreSQL com extensão pgvector para busca vetorial (RAG)
+- **Banco Normal**: PostgreSQL padrão para cache de análises
 
 **Nota:** O arquivo `.env` será carregado automaticamente pelo sistema. Você também pode usar variáveis de ambiente do sistema se preferir.
 
@@ -134,8 +141,9 @@ from src import create_workflow
 from src.workflow import FakeNewsWorkflow
 
 # Cria workflow customizado
+# Nota: Se pg_connection_string for fornecido, será usado para ambos os bancos
 workflow = create_workflow(
-    pg_connection_string="postgresql://...",
+    pg_connection_string="postgresql://...",  # Opcional: usa para ambos os bancos
     bert_model_name="seu-modelo-bert",
     llm_model="gemini-2.5-flash",  # ou "gemini-1.5-pro"
     google_api_key="sua-chave"
