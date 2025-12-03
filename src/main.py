@@ -10,6 +10,7 @@ from .workflow import FakeNewsWorkflow
 from .bert_classifier import BERTClassifier
 from .vector_db import VectorDB
 from .agent import FakeNewsAgent
+from .analysis_cache import AnalysisCache
 
 # Carrega variáveis de ambiente do arquivo .env
 env_path = Path(__file__).parent.parent / ".env"
@@ -39,7 +40,8 @@ def create_workflow(
     bert_model_name: Optional[str] = None,
     llm_model: str = "gemini-2.5-flash",
     google_api_key: Optional[str] = None,
-    embedding_model: Optional[str] = None
+    embedding_model: Optional[str] = None,
+    enable_cache: bool = True
 ) -> FakeNewsWorkflow:
     """
     Cria e configura o workflow completo.
@@ -51,6 +53,7 @@ def create_workflow(
         llm_model: Modelo LLM a ser usado (padrão: gemini-2.5-flash)
         google_api_key: Chave da API Google. Se None, usa variável de ambiente GOOGLE_API_KEY
         embedding_model: Modelo de embeddings. Se None, usa BAAI/bge-m3 ou variável EMBEDDING_MODEL
+        enable_cache: Se True, habilita cache de análises no PostgreSQL
         
     Returns:
         Instância configurada do FakeNewsWorkflow
@@ -82,11 +85,21 @@ def create_workflow(
         llm_model=llm_model
     )
     
+    # Inicializa cache de análises
+    analysis_cache = None
+    if enable_cache:
+        try:
+            analysis_cache = AnalysisCache(connection_string=pg_conn)
+            logger.info("Cache de análises habilitado")
+        except Exception as e:
+            logger.warning(f"Erro ao inicializar cache: {e}. Continuando sem cache.")
+    
     # Cria workflow
     workflow = FakeNewsWorkflow(
         vector_db=vector_db,
         bert_classifier=bert_classifier,
-        agent=agent
+        agent=agent,
+        analysis_cache=analysis_cache
     )
     
     logger.info("Workflow criado com sucesso!")

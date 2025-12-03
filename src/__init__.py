@@ -13,6 +13,7 @@ from .workflow import FakeNewsWorkflow
 from .agent import FakeNewsAgent
 from .bert_classifier import BERTClassifier
 from .vector_db import VectorDB
+from .analysis_cache import AnalysisCache
 
 __all__ = [
     "create_workflow",
@@ -24,6 +25,7 @@ __all__ = [
     "FakeNewsWorkflow",
     "FakeNewsAgent",
     "BERTClassifier",
-    "VectorDB"
+    "VectorDB",
+    "AnalysisCache"
 ]
 
