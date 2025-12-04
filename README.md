@@ -28,6 +28,8 @@ news_agent/
 
 ## Instalação
 
+### Backend (Python)
+
 1. Clone o repositório e instale as dependências:
 
 ```bash
@@ -37,7 +39,7 @@ pip install -r requirements.txt
 2. Configure as variáveis de ambiente criando um arquivo `.env` na raiz do projeto:
 
 ```bash
-# Crie o arquivo .env na raiz do projeto
+# Crie o arquivo .env na raiz do projeto (diretório backend)
 ```
 
 Conteúdo do arquivo `.env`:
@@ -243,6 +245,95 @@ O sistema usa o Gemini 2.5 por padrão. Modelos disponíveis:
 - A chave da API Google (GOOGLE_API_KEY) é necessária para o agente LangChain funcionar. Obtenha em https://makersuite.google.com/app/apikey
 - O Gemini 2.0 suporta structured output nativamente, garantindo respostas estruturadas confiáveis
 - As variáveis de ambiente são carregadas automaticamente do arquivo `.env` na raiz do projeto
+
+
+
+### Frontend (React + Vite)
+
+#### Pré-requisitos
+
+Certifique-se de ter o Node.js atualizado instalado.
+
+**Como atualizar o Node.js no Windows:**
+
+1. Acesse: https://nodejs.org/
+2. Baixe a versão **LTS** (recomendada)
+3. Execute o instalador (.msi)
+4. Siga o assistente de instalação
+5. Reinicie o terminal
+
+Verifique a versão instalada:
+```bash
+node -v
+npm -v
+```
+
+#### Instalar Frontend com Shadcn UI + Vite + Wouter + React
+
+### Obs.: Siga a referencia oficial https://ui.shadcn.com/docs/installation/vite
+
+1. Navegue até o diretório do projeto:
+
+```bash
+cd news_agent
+```
+
+2. Crie o projeto React com Vite:
+
+```bash
+npm create vite@latest frontend -- --template react-ts
+cd frontend
+```
+
+2.1. Add Tailwind CSS
+
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+
+3. Instale as dependências base:
+
+```bash
+npm install
+```
+
+4. Instale o Wouter (roteamento leve):
+
+```bash
+npm install wouter
+```
+
+5. Configure o Shadcn UI:
+
+```bash
+npx shadcn@latest init
+```
+
+Durante a configuração, escolha:
+- **TypeScript**: Yes
+- **Style**: Default ou New York (sua preferência)
+- **Base color**: Slate (ou sua preferência)
+- **CSS variables**: Yes
+
+6. Instale componentes do Shadcn UI conforme necessário:
+
+```bash
+npx shadcn@latest add button
+npx shadcn@latest add card
+npx shadcn@latest add input
+npx shadcn@latest add textarea
+# Adicione outros componentes conforme necessário
+```
+
+7. Inicie o servidor de desenvolvimento:
+
+```bash
+npm run dev
+```
+Local: http://localhost:5173/
+
+
 
 ## Licença
 
