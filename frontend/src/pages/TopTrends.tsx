@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Link } from "wouter"
 
 interface Trend {
   id: number
@@ -54,36 +55,35 @@ const TrendsList = ({ trends, category }: { trends: Trend[], category: string })
       <CardContent>
         <div className="space-y-3">
           {trends.map((trend, index) => (
-            <div
-              key={trend.id}
-              className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
-            >
-              <div className="flex items-center gap-3 flex-1">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                  {index + 1}
+            <Link key={trend.id} href={`/trends/${encodeURIComponent(trend.keyword)}`}>
+              <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{trend.keyword}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Volume: {formatNumber(trend.searchVolume)} buscas
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{trend.keyword}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Volume: {formatNumber(trend.searchVolume)} buscas
-                  </p>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={trend.growth > 0 ? "default" : "secondary"}
+                    className={
+                      trend.growth > 0
+                        ? "bg-green-500 hover:bg-green-600"
+                        : trend.growth < 0
+                        ? "bg-red-500 hover:bg-red-600"
+                        : ""
+                    }
+                  >
+                    {trend.growth > 0 ? "+" : ""}{trend.growth}%
+                  </Badge>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant={trend.growth > 0 ? "default" : "secondary"}
-                  className={
-                    trend.growth > 0
-                      ? "bg-green-500 hover:bg-green-600"
-                      : trend.growth < 0
-                      ? "bg-red-500 hover:bg-red-600"
-                      : ""
-                  }
-                >
-                  {trend.growth > 0 ? "+" : ""}{trend.growth}%
-                </Badge>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </CardContent>
