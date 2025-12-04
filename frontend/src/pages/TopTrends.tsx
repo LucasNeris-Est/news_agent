@@ -1,39 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Link } from "wouter"
-
-interface Trend {
-  id: number
-  keyword: string
-  searchVolume: number
-  growth: number
-}
-
-const politicaTrends: Trend[] = [
-  { id: 1, keyword: "Eleições 2026", searchVolume: 125000, growth: 45 },
-  { id: 2, keyword: "Reforma Tributária", searchVolume: 98000, growth: 32 },
-  { id: 3, keyword: "Votação Congresso", searchVolume: 87000, growth: 28 },
-  { id: 4, keyword: "Ministro STF", searchVolume: 76000, growth: 15 },
-  { id: 5, keyword: "CPI Investigação", searchVolume: 65000, growth: 22 },
-  { id: 6, keyword: "Partido Político", searchVolume: 54000, growth: -5 },
-  { id: 7, keyword: "Declaração Presidente", searchVolume: 48000, growth: 18 },
-  { id: 8, keyword: "Senado Federal", searchVolume: 42000, growth: 12 },
-  { id: 9, keyword: "Câmara Deputados", searchVolume: 38000, growth: 8 },
-  { id: 10, keyword: "Debate Político", searchVolume: 31000, growth: -3 }
-]
-
-const legislacaoTrends: Trend[] = [
-  { id: 1, keyword: "Nova Lei Trabalhista", searchVolume: 142000, growth: 52 },
-  { id: 2, keyword: "Mudança CLT", searchVolume: 118000, growth: 38 },
-  { id: 3, keyword: "Decreto Presidencial", searchVolume: 95000, growth: 41 },
-  { id: 4, keyword: "Regulamentação Tributária", searchVolume: 89000, growth: 25 },
-  { id: 5, keyword: "Lei Orçamentária", searchVolume: 72000, growth: 19 },
-  { id: 6, keyword: "Medida Provisória", searchVolume: 68000, growth: 33 },
-  { id: 7, keyword: "Projeto de Lei", searchVolume: 61000, growth: 15 },
-  { id: 8, keyword: "Portaria Ministerial", searchVolume: 55000, growth: 28 },
-  { id: 9, keyword: "Resolução Normativa", searchVolume: 47000, growth: 11 },
-  { id: 10, keyword: "Emenda Constitucional", searchVolume: 39000, growth: 7 }
-]
+import { politicaTrends, legislacaoTrends, type Trend } from "@/data/mockData"
 
 const formatNumber = (num: number): string => {
   if (num >= 1000000) {

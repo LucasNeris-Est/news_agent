@@ -4,128 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, ExternalLink, Calendar, TrendingUp, Facebook, Instagram, Linkedin, Youtube, Twitter } from "lucide-react"
-
-interface NewsArticle {
-  id: number
-  title: string
-  source: string
-  url: string
-  publishedAt: string
-  summary: string
-  sentiment: "positive" | "neutral" | "negative"
-}
-
-interface SocialPost {
-  id: number
-  platform: string
-  author: string
-  content: string
-  likes: number
-  shares: number
-  comments: number
-  publishedAt: string
-  url: string
-}
-
-type SocialPlatform = "X" | "Instagram" | "Facebook" | "LinkedIn" | "Reddit" | "YouTube"
-
-// Dados mockados de notícias por keyword
-const newsDatabase: Record<string, NewsArticle[]> = {
-  "Eleições 2026": [
-    {
-      id: 1,
-      title: "Partidos iniciam movimentação para eleições de 2026",
-      source: "G1",
-      url: "https://g1.globo.com",
-      publishedAt: "2025-12-03T10:30:00",
-      summary: "Principais partidos políticos já começam a discutir estratégias e possíveis candidaturas para as eleições gerais de 2026.",
-      sentiment: "neutral"
-    },
-    {
-      id: 2,
-      title: "TSE anuncia calendário preliminar das eleições 2026",
-      source: "Folha de S.Paulo",
-      url: "https://folha.uol.com.br",
-      publishedAt: "2025-12-03T09:15:00",
-      summary: "Tribunal Superior Eleitoral divulga cronograma inicial com datas importantes para o pleito de 2026.",
-      sentiment: "positive"
-    },
-    {
-      id: 3,
-      title: "Pesquisa mostra cenário ainda indefinido para 2026",
-      source: "O Globo",
-      url: "https://oglobo.globo.com",
-      publishedAt: "2025-12-02T14:20:00",
-      summary: "Levantamento indica que eleitores ainda não têm candidato definido para as eleições presidenciais.",
-      sentiment: "neutral"
-    },
-    {
-      id: 4,
-      title: "Governadores articulam candidaturas para próximo pleito",
-      source: "Estadão",
-      url: "https://estadao.com.br",
-      publishedAt: "2025-12-02T11:45:00",
-      summary: "Diversos governadores estaduais começam a se posicionar como potenciais candidatos à presidência em 2026.",
-      sentiment: "neutral"
-    },
-    {
-      id: 5,
-      title: "Novas regras eleitorais podem impactar eleições 2026",
-      source: "UOL",
-      url: "https://uol.com.br",
-      publishedAt: "2025-12-01T16:00:00",
-      summary: "Mudanças na legislação eleitoral aprovadas recentemente devem alterar dinâmica das campanhas no próximo pleito.",
-      sentiment: "negative"
-    }
-  ],
-  "Reforma Tributária": [
-    {
-      id: 1,
-      title: "Congresso aprova texto final da Reforma Tributária",
-      source: "CNN Brasil",
-      url: "https://cnnbrasil.com.br",
-      publishedAt: "2025-12-03T13:00:00",
-      summary: "Após meses de debate, parlamentares aprovam versão final da reforma que unifica impostos sobre consumo.",
-      sentiment: "positive"
-    },
-    {
-      id: 2,
-      title: "Empresas se preparam para mudanças tributárias",
-      source: "Valor Econômico",
-      url: "https://valor.globo.com",
-      publishedAt: "2025-12-03T08:30:00",
-      summary: "Setor empresarial inicia adaptações aos novos modelos de tributação previstos na reforma.",
-      sentiment: "neutral"
-    },
-    {
-      id: 3,
-      title: "Especialistas alertam sobre impactos da reforma",
-      source: "InfoMoney",
-      url: "https://infomoney.com.br",
-      publishedAt: "2025-12-02T15:45:00",
-      summary: "Economistas apontam possíveis efeitos da reforma tributária sobre diferentes setores da economia.",
-      sentiment: "negative"
-    },
-    {
-      id: 4,
-      title: "Estados negociam transição da reforma tributária",
-      source: "Metrópoles",
-      url: "https://metropoles.com",
-      publishedAt: "2025-12-02T10:20:00",
-      summary: "Governadores discutem período de adaptação e compensações por perdas de arrecadação.",
-      sentiment: "neutral"
-    },
-    {
-      id: 5,
-      title: "População ainda não compreende mudanças tributárias",
-      source: "R7",
-      url: "https://r7.com",
-      publishedAt: "2025-12-01T12:15:00",
-      summary: "Pesquisa mostra que maioria dos brasileiros não entende as alterações propostas pela reforma.",
-      sentiment: "negative"
-    }
-  ]
-}
+import { newsDatabase, type NewsArticle, type SocialPost, type SocialPlatform } from "@/data/mockData"
 
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
@@ -193,12 +72,48 @@ export default function TrendDetails() {
         shares: Math.floor(Math.random() * 1000),
         comments: Math.floor(Math.random() * 500),
         publishedAt: new Date(Date.now() - Math.random() * 86400000).toISOString(),
-        url: `https://${selectedPlatform.toLowerCase()}.com/post/${i + 1}`
+        url: `https://${selectedPlatform.toLowerCase()}.com/post/${i + 1}`,
+        disinfoScore: undefined,
+        isAnalyzing: false
       }))
       
       setSocialPosts(mockPosts)
       setIsExtracting(false)
     }, 2000)
+  }
+
+  const analyzeDisinformation = (postId: number) => {
+    // Marca o post como analisando
+    setSocialPosts(posts => 
+      posts.map(post => 
+        post.id === postId ? { ...post, isAnalyzing: true } : post
+      )
+    )
+
+    // Simula análise de desinformação (substituir por chamada real à API)
+    setTimeout(() => {
+      const score = Math.floor(Math.random() * 100)
+      
+      setSocialPosts(posts => 
+        posts.map(post => 
+          post.id === postId 
+            ? { ...post, disinfoScore: score, isAnalyzing: false }
+            : post
+        )
+      )
+    }, 3000)
+  }
+
+  const getDisinfoColor = (score: number): string => {
+    if (score >= 70) return "text-red-600"
+    if (score >= 40) return "text-yellow-600"
+    return "text-green-600"
+  }
+
+  const getDisinfoLabel = (score: number): string => {
+    if (score >= 70) return "Alto Risco"
+    if (score >= 40) return "Risco Moderado"
+    return "Baixo Risco"
   }
 
   return (
@@ -324,12 +239,48 @@ export default function TrendDetails() {
                       {formatDate(post.publishedAt)}
                     </span>
                   </div>
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={post.url} target="_blank" rel="noopener noreferrer">
-                      Ver post original
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                  </Button>
+                  
+                  {post.disinfoScore !== undefined && (
+                    <div className="mb-4 p-3 rounded-lg bg-muted">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Potencial de Desinformação:</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-2xl font-bold ${getDisinfoColor(post.disinfoScore)}`}>
+                            {post.disinfoScore}%
+                          </span>
+                          <Badge variant={post.disinfoScore >= 70 ? "destructive" : post.disinfoScore >= 40 ? "default" : "secondary"}>
+                            {getDisinfoLabel(post.disinfoScore)}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={post.url} target="_blank" rel="noopener noreferrer">
+                        Ver post original
+                        <ExternalLink className="ml-2 h-4 w-4" />
+                      </a>
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => analyzeDisinformation(post.id)}
+                      disabled={post.isAnalyzing || post.disinfoScore !== undefined}
+                    >
+                      {post.isAnalyzing ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                          Analisando...
+                        </>
+                      ) : post.disinfoScore !== undefined ? (
+                        "Já analisado"
+                      ) : (
+                        "Verificar potencial de desinformação"
+                      )}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
