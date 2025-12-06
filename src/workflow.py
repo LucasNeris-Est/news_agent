@@ -70,6 +70,7 @@ class FakeNewsWorkflow:
                 metadata=post_input.metadata,
                 image_description=post_input.image_description,
                 social_network=post_input.social_network,
+                trend=post_input.trend,
                 bert_score=bert_score
             )
             
@@ -109,7 +110,8 @@ class FakeNewsWorkflow:
             text=post_json.get("text", ""),
             metadata=post_json.get("metadata", {}),
             image_description=post_json.get("image_description"),
-            social_network=post_json.get("social_network")
+            social_network=post_json.get("social_network"),
+            trend=post_json.get("trend")
         )
     
     def _output_to_dict(self, output: PostAnalysisOutput) -> Dict[str, Any]:

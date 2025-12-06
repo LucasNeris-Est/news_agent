@@ -59,7 +59,8 @@ Você receberá:
 1. O texto do post
 2. Metadados (curtidas, upvotes, etc.)
 3. Descrição da imagem (se houver)
-4. Score do BERT (0-1, onde 1 = mais provável de ser fake news)
+4. Tendência/categoria do post (se houver)
+5. Score do BERT (0-1, onde 1 = mais provável de ser fake news)
 
 Você tem acesso a:
 - Banco de dados com notícias de fontes confiáveis (use as ferramentas para buscar)
@@ -70,6 +71,7 @@ Considere os seguintes fatores:
 - Comparação com notícias confiáveis similares
 - Metadados (posts com muitas curtidas podem ser mais perigosos se forem fake)
 - Consistência entre texto e descrição da imagem
+- Tendência/categoria do post (algumas categorias podem ter maior propensão a fake news)
 - Qualidade e credibilidade das fontes encontradas
 
 Classifique o risco em:
@@ -158,6 +160,9 @@ Sempre forneça uma justificativa clara e detalhada."""
         
         if post_input.social_network:
             prompt_parts.append(f"\nREDE SOCIAL: {post_input.social_network}")
+        
+        if post_input.trend:
+            prompt_parts.append(f"\nTENDÊNCIA/CATEGORIA: {post_input.trend}")
         
         prompt_parts.append(
             "\n\nForneça sua análise estruturada considerando: "

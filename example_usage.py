@@ -9,6 +9,7 @@ print("=" * 60)
 
 post_json = {
     "text": "Breaking: Cientistas descobrem que vacinas causam autismo! Esta notícia foi confirmada por fontes anônimas.",
+    "trend": "politics",
     "metadata": {
         "likes": 15000,
         "shares": 500,

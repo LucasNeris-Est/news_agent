@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS post_analyses (
     post_metadata JSONB,
     image_description TEXT,
     social_network VARCHAR(50),
+    trend VARCHAR(100),
     risk_level VARCHAR(20) NOT NULL,
     risk_score DECIMAL(5,3) NOT NULL,
     bert_score DECIMAL(5,3) NOT NULL,

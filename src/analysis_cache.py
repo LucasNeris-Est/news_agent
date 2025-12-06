@@ -66,7 +66,8 @@ class AnalysisCache:
         hash_data = {
             "text": post_input.text.strip().lower(),
             "image_description": post_input.image_description.strip().lower() if post_input.image_description else "",
-            "social_network": post_input.social_network or ""
+            "social_network": post_input.social_network or "",
+            "trend": post_input.trend or ""
         }
         
         # Serializa e gera hash
@@ -154,10 +155,10 @@ class AnalysisCache:
                     """
                     INSERT INTO post_analyses (
                         post_hash, post_text, post_metadata, image_description,
-                        social_network, risk_level, risk_score, bert_score,
+                        social_network, trend, risk_level, risk_score, bert_score,
                         confidence, reasoning, relevant_sources, factors
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                     ON CONFLICT (post_hash) 
                     DO UPDATE SET
@@ -176,6 +177,7 @@ class AnalysisCache:
                         Json(post_input.metadata),
                         post_input.image_description,
                         post_input.social_network,
+                        post_input.trend,
                         analysis.risk_level,
                         analysis.risk_score,
                         analysis.bert_score,
@@ -194,6 +196,49 @@ class AnalysisCache:
             if conn:
                 conn.rollback()
             return False
+        finally:
+            if conn:
+                self._return_connection(conn)
+    
+    def get_posts_by_trend(self, trend: str, limit: int = 100) -> list[Dict[str, Any]]:
+        """
+        Busca posts analisados por tendência.
+        
+        Args:
+            trend: Tendência/categoria a buscar
+            limit: Número máximo de resultados (padrão: 100)
+            
+        Returns:
+            Lista de posts analisados com a tendência especificada
+        """
+        if self.pool is None:
+            return []
+        
+        conn = None
+        try:
+            conn = self._get_connection()
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT 
+                        post_text, post_metadata, image_description,
+                        social_network, trend, risk_level, risk_score,
+                        bert_score, confidence, reasoning, relevant_sources,
+                        factors, created_at, updated_at
+                    FROM post_analyses
+                    WHERE trend = %s
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                    """,
+                    (trend, limit)
+                )
+                
+                rows = cur.fetchall()
+                return [dict(row) for row in rows]
+                
+        except Exception as e:
+            logger.error(f"Erro ao buscar posts por trend: {e}")
+            return []
         finally:
             if conn:
                 self._return_connection(conn)

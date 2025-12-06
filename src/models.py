@@ -9,6 +9,7 @@ class PostInput(BaseModel):
     metadata: dict = Field(default_factory=dict, description="Metadados do post (curtidas, upvotes, etc.)")
     image_description: Optional[str] = Field(None, description="Descrição da imagem se houver")
     social_network: Optional[str] = Field(None, description="Rede social de origem")
+    trend: Optional[str] = Field(None, description="Tendência ou categoria do post (ex: politics, health, technology)")
 
 
 class PostAnalysisInput(BaseModel):
@@ -17,6 +18,7 @@ class PostAnalysisInput(BaseModel):
     metadata: dict
     image_description: Optional[str] = None
     social_network: Optional[str] = None
+    trend: Optional[str] = None
     bert_score: float = Field(..., ge=0.0, le=1.0, description="Score do BERT (0-1)")
 
 
