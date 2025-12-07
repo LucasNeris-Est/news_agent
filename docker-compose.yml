@@ -18,7 +18,32 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - news_agent_network
+
+  api:
+    build: .
+    container_name: news_agent_api
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # Usa o nome do serviço 'postgres' como hostname (rede Docker interna)
+      - POSTGRES_VECTOR_DB_CONNECTION_STRING=postgresql://news_agent:news_agent_password@postgres:5432/news_agent_db
+      - POSTGRES_CACHE_DB_CONNECTION_STRING=postgresql://news_agent:news_agent_password@postgres:5432/news_agent_db
+      - LLM_MODEL=${LLM_MODEL:-gemini-2.5-flash}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-m3}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - news_agent_network
 
 volumes:
   postgres_data:
+
+networks:
+  news_agent_network:
+    driver: bridge
 

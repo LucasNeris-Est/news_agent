@@ -13,11 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia código da aplicação
 COPY src/ ./src/
-COPY *.py ./
+COPY run_api.py ./
 
-# Expõe porta (se necessário para API futura)
+# Expõe porta da API
 EXPOSE 8000
 
-# Comando padrão
-CMD ["python", "example_usage.py"]
+# Comando para rodar a API
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
