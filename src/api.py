@@ -92,6 +92,55 @@ async def get_posts_by_trend(trend: str, limit: int = 100) -> List[Dict[str, Any
         raise HTTPException(status_code=500, detail=f"Erro ao buscar posts: {str(e)}")
 
 
+@app.get("/posts/{post_id}")
+async def get_post_by_id(post_id: int) -> Dict[str, Any]:
+    """
+    Retorna uma análise específica por ID.
+    
+    Args:
+        post_id: ID da análise
+    
+    Returns:
+        Dados completos da análise
+    """
+    if workflow is None or workflow.analysis_cache is None:
+        raise HTTPException(status_code=503, detail="Cache não disponível")
+    
+    try:
+        post = workflow.analysis_cache.get_post_by_id(post_id)
+        if post is None:
+            raise HTTPException(status_code=404, detail=f"Análise com ID {post_id} não encontrada")
+        return post
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erro ao buscar post por ID: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar post: {str(e)}")
+
+
+@app.get("/posts")
+async def get_posts(page: int = 1, limit: int = 20) -> Dict[str, Any]:
+    """
+    Retorna lista paginada de análises.
+    
+    Args:
+        page: Número da página (começa em 1, padrão: 1)
+        limit: Número de resultados por página (padrão: 20, máximo: 100)
+    
+    Returns:
+        Dicionário com 'data' (lista de posts), 'total', 'page', 'limit', 'pages'
+    """
+    if workflow is None or workflow.analysis_cache is None:
+        raise HTTPException(status_code=503, detail="Cache não disponível")
+    
+    try:
+        result = workflow.analysis_cache.get_posts_paginated(page, limit)
+        return result
+    except Exception as e:
+        logger.error(f"Erro ao buscar posts paginados: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar posts: {str(e)}")
+
+
 @app.get("/health")
 async def health_check() -> Dict[str, str]:
     """Endpoint de health check."""

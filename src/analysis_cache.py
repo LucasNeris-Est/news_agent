@@ -221,7 +221,7 @@ class AnalysisCache:
                 cur.execute(
                     """
                     SELECT 
-                        post_text, post_metadata, image_description,
+                        id, post_hash, post_text, post_metadata, image_description,
                         social_network, trend, risk_level, risk_score,
                         bert_score, confidence, reasoning, relevant_sources,
                         factors, created_at, updated_at
@@ -239,6 +239,107 @@ class AnalysisCache:
         except Exception as e:
             logger.error(f"Erro ao buscar posts por trend: {e}")
             return []
+        finally:
+            if conn:
+                self._return_connection(conn)
+    
+    def get_post_by_id(self, post_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Busca uma análise específica por ID.
+        
+        Args:
+            post_id: ID da análise
+            
+        Returns:
+            Dicionário com os dados da análise ou None se não encontrado
+        """
+        if self.pool is None:
+            return None
+        
+        conn = None
+        try:
+            conn = self._get_connection()
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT 
+                        id, post_hash, post_text, post_metadata, image_description,
+                        social_network, trend, risk_level, risk_score,
+                        bert_score, confidence, reasoning, relevant_sources,
+                        factors, created_at, updated_at
+                    FROM post_analyses
+                    WHERE id = %s
+                    """,
+                    (post_id,)
+                )
+                
+                row = cur.fetchone()
+                return dict(row) if row else None
+                
+        except Exception as e:
+            logger.error(f"Erro ao buscar post por ID: {e}")
+            return None
+        finally:
+            if conn:
+                self._return_connection(conn)
+    
+    def get_posts_paginated(self, page: int = 1, limit: int = 20) -> Dict[str, Any]:
+        """
+        Busca análises com paginação.
+        
+        Args:
+            page: Número da página (começa em 1)
+            limit: Número de resultados por página (padrão: 20, máximo: 100)
+            
+        Returns:
+            Dicionário com 'data' (lista de posts), 'total', 'page', 'limit', 'pages'
+        """
+        if self.pool is None:
+            return {"data": [], "total": 0, "page": page, "limit": limit, "pages": 0}
+        
+        # Valida e limita o limit
+        limit = min(max(1, limit), 100)
+        page = max(1, page)
+        offset = (page - 1) * limit
+        
+        conn = None
+        try:
+            conn = self._get_connection()
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                # Conta total de registros
+                cur.execute("SELECT COUNT(*) as total FROM post_analyses")
+                total = cur.fetchone()['total']
+                
+                # Busca registros paginados
+                cur.execute(
+                    """
+                    SELECT 
+                        id, post_hash, post_text, post_metadata, image_description,
+                        social_network, trend, risk_level, risk_score,
+                        bert_score, confidence, reasoning, relevant_sources,
+                        factors, created_at, updated_at
+                    FROM post_analyses
+                    ORDER BY created_at DESC
+                    LIMIT %s OFFSET %s
+                    """,
+                    (limit, offset)
+                )
+                
+                rows = cur.fetchall()
+                data = [dict(row) for row in rows]
+                pages = (total + limit - 1) // limit  # Arredonda para cima
+                
+                return {
+                    "data": data,
+                    "total": total,
+                    "page": page,
+                    "limit": limit,
+                    "pages": pages
+                }
+                
+        except Exception as e:
+            logger.error(f"Erro ao buscar posts paginados: {e}")
+            return {"data": [], "total": 0, "page": page, "limit": limit, "pages": 0}
         finally:
             if conn:
                 self._return_connection(conn)
