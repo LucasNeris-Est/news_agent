@@ -15,7 +15,7 @@ class VectorDB:
     def __init__(
         self,
         connection_string: str,
-        collection_name: str = "noticias",
+        collection_name: str = "noticiasrag",
         embedding_model: str = "BAAI/bge-m3"
     ):
         """
