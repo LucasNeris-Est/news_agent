@@ -16,6 +16,9 @@ services:
       - POSTGRES_CACHE_DB_CONNECTION_STRING=${POSTGRES_CACHE_DB_CONNECTION_STRING}
       - LLM_MODEL=${LLM_MODEL:-gemini-2.5-flash}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-m3}
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     restart: unless-stopped
     networks:
       - news_agent_network
