@@ -1,25 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: pgvector/pgvector:pg16
-    container_name: news_agent_db
-    environment:
-      POSTGRES_USER: news_agent
-      POSTGRES_PASSWORD: news_agent_password
-      POSTGRES_DB: news_agent_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U news_agent -d news_agent_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - news_agent_network
 
   api:
     build: .
@@ -28,22 +9,18 @@ services:
       - "8000:8000"
     environment:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      # Usa o nome do serviço 'postgres' como hostname (rede Docker interna)
+      # Strings de conexão PostgreSQL (configure no .env ou aqui)
+      # Se o PostgreSQL estiver na mesma rede Docker, use o nome do serviço como hostname
+      # Se estiver fora do Docker, use localhost ou IP do host
       - POSTGRES_VECTOR_DB_CONNECTION_STRING=${POSTGRES_VECTOR_DB_CONNECTION_STRING}
       - POSTGRES_CACHE_DB_CONNECTION_STRING=${POSTGRES_CACHE_DB_CONNECTION_STRING}
       - LLM_MODEL=${LLM_MODEL:-gemini-2.5-flash}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-m3}
-    depends_on:
-      postgres:
-        condition: service_healthy
     restart: unless-stopped
     networks:
       - news_agent_network
 
-volumes:
-  postgres_data:
-
 networks:
   news_agent_network:
-    driver: bridge
+    external: true
 
