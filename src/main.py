@@ -96,10 +96,14 @@ def create_workflow(
     # Configura modelo de embeddings (prioridade: parâmetro > .env > padrão)
     embedding_model_name = embedding_model or os.getenv("EMBEDDING_MODEL") or "BAAI/bge-m3"
     
+    # Configura modelo BERT (prioridade: parâmetro > padrão)
+    bert_model = bert_model_name or "vzani/portuguese-fake-news-classifier-bertimbau-fake-br"
+    
     # Inicializa componentes
     logger.info("Inicializando componentes...")
     logger.info(f"Usando modelo de embeddings: {embedding_model_name}")
-    bert_classifier = BERTClassifier(model_name=bert_model_name)
+    logger.info(f"Usando modelo BERT: {bert_model}")
+    bert_classifier = BERTClassifier(model_name=bert_model)
     vector_db = VectorDB(connection_string=vector_db_conn, embedding_model=embedding_model_name)
     agent = FakeNewsAgent(
         vector_db=vector_db,

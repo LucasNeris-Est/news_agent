@@ -90,3 +90,4 @@ Thumbs.db
 *.swp
 
 test_rag.py
+test_bert.py
