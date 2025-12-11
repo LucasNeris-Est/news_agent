@@ -141,6 +141,25 @@ async def get_posts(page: int = 1, limit: int = 20) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar posts: {str(e)}")
 
 
+@app.get("/trends")
+async def get_trends() -> Dict[str, Any]:
+    """
+    Retorna lista de trends distintas presentes no banco de dados.
+    
+    Returns:
+        Dicionário com 'trends' (lista de trends distintas)
+    """
+    if workflow is None or workflow.analysis_cache is None:
+        raise HTTPException(status_code=503, detail="Cache não disponível")
+    
+    try:
+        trends = workflow.analysis_cache.get_distinct_trends()
+        return {"trends": trends, "count": len(trends)}
+    except Exception as e:
+        logger.error(f"Erro ao buscar trends: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar trends: {str(e)}")
+
+
 @app.get("/health")
 async def health_check() -> Dict[str, str]:
     """Endpoint de health check."""

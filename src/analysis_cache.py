@@ -200,6 +200,38 @@ class AnalysisCache:
             if conn:
                 self._return_connection(conn)
     
+    def get_distinct_trends(self) -> list[str]:
+        """
+        Retorna lista de trends distintas presentes no banco.
+        
+        Returns:
+            Lista de trends distintas (ordenadas alfabeticamente)
+        """
+        if self.pool is None:
+            logger.warning("Pool de conexões não disponível")
+            return []
+        
+        conn = None
+        try:
+            conn = self._get_connection()
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT DISTINCT trend
+                    FROM post_analyses
+                    WHERE trend IS NOT NULL AND trend != ''
+                    ORDER BY trend ASC
+                """)
+                
+                results = cur.fetchall()
+                trends = [row['trend'] for row in results]
+                return trends
+        except Exception as e:
+            logger.error(f"Erro ao buscar trends distintas: {e}")
+            return []
+        finally:
+            if conn:
+                self._return_connection(conn)
+    
     def get_posts_by_trend(self, trend: str, limit: int = 100) -> list[Dict[str, Any]]:
         """
         Busca posts analisados por tendência.
