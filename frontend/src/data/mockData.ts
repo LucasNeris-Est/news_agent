@@ -63,7 +63,7 @@ export const newsDatabase: Record<string, NewsArticle[]> = {
   "Eleições 2026": [
     {
       id: 1,
-      title: "Partidos iniciam movimentação para eleições de 2026",
+      title: "Partidos inchiciam movimentação para eleições de 2026",
       source: "G1",
       url: "https://g1.globo.com",
       publishedAt: "2025-12-03T10:30:00",
